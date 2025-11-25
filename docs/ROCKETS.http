@@ -1,0 +1,20 @@
+### Backend APIs
+
+### all rockets
+GET localhost:8080/api/rockets/all
+
+
+### all launces
+GET localhost:8080/api/launches/all
+
+
+### Data source apis
+### Provided via: https://github.com/r-spacex/SpaceX-API
+GET https://api.spacexdata.com/v5/launches/latest
+
+
+### Rockets
+GET https://api.spacexdata.com/v4/rockets
+
+### Launches
+GET https://api.spacexdata.com/v4/launches
