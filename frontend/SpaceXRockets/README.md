@@ -4,7 +4,7 @@ This project was generated using [Angular CLI](https://github.com/angular/angula
 
 ## Development server
 
-To start a local development server, run:
+To start a local front end development server, run:
 
 ```bash
 ng serve
@@ -57,3 +57,43 @@ Angular CLI does not come with an end-to-end testing framework by default. You c
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+## Backend Development
+
+To build and run the backend server (Spring Boot with Maven) from the project root:
+
+1. Ensure prerequisites are installed:
+   - Java JDK (matching the version in the backend pom.xml)
+   - Maven 3.9+
+
+2. In a terminal at the repository root (`/Users/m/code/SpaceXRockets`), run the backend in dev mode:
+   
+   ```bash
+   mvn spring-boot:run
+   ```
+
+   The server starts by default at:
+   - http://localhost:8080
+
+3. Verify the API is responding:
+   
+   ```bash
+   curl http://localhost:8080/api/rockets/all
+   ```
+
+4. Optional: build a jar and run it directly:
+   
+   ```bash
+   mvn clean package
+   java -jar target/SpaceXRockets-0.0.1-SNAPSHOT.jar
+   ```
+
+5. Change port if needed (example: 8081):
+   
+   ```bash
+   mvn spring-boot:run -Dspring-boot.run.arguments=--server.port=8081
+   ```
+
+Notes:
+- During frontend development, the Angular dev server is configured to proxy `/api` to `http://localhost:8080`. Start it from `frontend/SpaceXRockets` with `npm start`.
+

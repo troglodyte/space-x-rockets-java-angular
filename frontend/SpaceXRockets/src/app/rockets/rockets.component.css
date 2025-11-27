@@ -1,0 +1,28 @@
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.table thead th {
+  background: #f7f7f7;
+}
+
+.status {
+  margin: 1rem 0;
+}
+
+.status.error {
+  color: #b00020;
+}

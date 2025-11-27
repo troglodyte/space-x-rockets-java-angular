@@ -1,0 +1,32 @@
+<section class="rockets">
+  @if (loading()) {
+    <p class="status">Loading rockets…</p>
+  } @else if (error()) {
+    <p class="status error">{{ error() }}</p>
+  } @else {
+    @if (rockets().length === 0) {
+      <p class="status">No rockets found.</p>
+    } @else {
+      <div class="table-wrapper" role="region" aria-label="Rockets table">
+        <table class="table">
+          <thead>
+          <tr>
+            @for (col of columns(); track col) {
+              <th scope="col">{{ col }}</th>
+            }
+          </tr>
+          </thead>
+          <tbody>
+          @for (r of rockets(); track r['id'] ?? $index) {
+            <tr>
+              @for (col of columns(); track col) {
+                <td>{{ r[col] }}</td>
+              }
+            </tr>
+          }
+          </tbody>
+        </table>
+      </div>
+    }
+  }
+</section>
