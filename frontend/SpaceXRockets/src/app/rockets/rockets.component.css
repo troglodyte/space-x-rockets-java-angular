@@ -3,40 +3,37 @@
   overflow-x: auto;
 }
 
-/* Let Bootstrap handle table styling via .table classes */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
 
-/* Sortable header button */
+.table th,
+.table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+
+.table thead th {
+  background: #f7f7f7;
+}
+
+/* Header button styling for sortable columns */
 .th-btn {
   appearance: none;
-  background: transparent;
   border: none;
+  background: transparent;
   padding: 0;
   margin: 0;
   font: inherit;
-  color: inherit;
   cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
+  color: inherit;
 }
 
-.th-btn::after {
-  content: '';
-  display: inline-block;
-  width: 0;
-  height: 0;
-  border-left: 4px solid transparent;
-  border-right: 4px solid transparent;
-  border-top: 6px solid transparent; /* default invisible arrow */
-}
-
-.th-btn.active.asc::after {
-  border-top-color: currentColor; /* up arrow */
-  transform: rotate(180deg); /* pointing up */
-}
-
-.th-btn.active.desc::after {
-  border-top-color: currentColor; /* down arrow */
+.th-btn:focus {
+  outline: 2px solid #7aa7ff;
+  outline-offset: 2px;
 }
 
 .status {

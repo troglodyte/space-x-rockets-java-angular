@@ -1,6 +1,5 @@
 package org.example;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,97 +15,47 @@ import com.fasterxml.jackson.core.type.TypeReference;
 public class RocketsController {
     private final ObjectMapper objectMapper;
 
-    // Rocket record modeled after SpaceX v4 /rockets schema
-    // The annotations instruct Jackson to ignore any properties we don't explicitly model here.
+    // id, name, active, success_rate_pct
     @JsonIgnoreProperties(ignoreUnknown = true)
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private record Rocket(
-            String id,
-            String name,
-            String type,
-            Boolean active,
-            Integer stages,
-            Integer boosters,
-            Integer cost_per_launch,
-            Integer success_rate_pct,
-            String first_flight,
-            String country,
-            String company,
-            Dimension height,
-            Dimension diameter,
-            Mass mass,
-            FirstStage first_stage,
-            SecondStage second_stage,
-            Engines engines,
-            LandingLegs landing_legs,
-            List<String> flickr_images,
-            String wikipedia,
-            String description
-    ) {}
+    private static class Rocket {
+        private String id;
+        private String name;
+        private Boolean active;
+        private Integer success_rate_pct;
 
-    private record RocketDTO(
-            String id,
-            String name,
-            String description,
-            Boolean active,
-            Integer successRatePct
-    ) {}
+        public Rocket() {}
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private record Dimension(Double meters, Double feet) {}
+        public String getId() { return id; }
+        public void setId(String id) { this.id = id; }
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private record Mass(Integer kg, Integer lb) {}
+        public String getName() { return name; }
+        public void setName(String name) { this.name = name; }
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private record Thrust(Double kN, Double lbf) {}
+        public Boolean getActive() { return active; }
+        public void setActive(Boolean active) { this.active = active; }
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private record Isp(Integer sea_level, Integer vacuum) {}
+        public Integer getSuccess_rate_pct() { return success_rate_pct; }
+        public void setSuccess_rate_pct(Integer success_rate_pct) { this.success_rate_pct = success_rate_pct; }
+    }
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private record FirstStage(
-            Boolean reusable,
-            Integer engines,
-            Double fuel_amount_tons,
-            Integer burn_time_sec,
-            Thrust thrust_sea_level,
-            Thrust thrust_vacuum
-    ) {}
+    private static class RocketDTO {
+        private final String id;
+        private final String name;
+        private final Boolean active;
+        private final Integer successRatePct;
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private record CompositeFairing(Dimension height, Dimension diameter) {}
+        public RocketDTO(String id, String name, Boolean active, Integer successRatePct) {
+            this.id = id;
+            this.name = name;
+            this.active = active;
+            this.successRatePct = successRatePct;
+        }
 
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private record Payloads(CompositeFairing composite_fairing, String option_1) {}
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private record SecondStage(
-            Boolean reusable,
-            Integer engines,
-            Double fuel_amount_tons,
-            Integer burn_time_sec,
-            Thrust thrust,
-            Payloads payloads
-    ) {}
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private record Engines(
-            Integer number,
-            String type,
-            String version,
-            String layout,
-            Isp isp,
-            Integer engine_loss_max,
-            String propellant_1,
-            String propellant_2,
-            Thrust thrust_sea_level,
-            Thrust thrust_vacuum,
-            Double thrust_to_weight
-    ) {}
-
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    private record LandingLegs(Integer number, String material) {}
+        public String getId() { return id; }
+        public String getName() { return name; }
+        public Boolean getActive() { return active; }
+        public Integer getSuccessRatePct() { return successRatePct; }
+    }
 
     private final SpaceXRocketsApi spaceXRocketsApi;
 
@@ -158,7 +107,7 @@ public class RocketsController {
      */
     private static List<Rocket> getActiveRockets(List<Rocket> rockets) {
         return rockets.stream()
-                .filter(rocket -> rocket.active() != null && rocket.active())
+                .filter(rocket -> Boolean.TRUE.equals(rocket.getActive()))
                 .toList();
     }
 
@@ -169,13 +118,12 @@ public class RocketsController {
      */
     private static List<RocketDTO> getActiveRocketsDTO(List<Rocket> rockets) {
         return rockets.stream()
-                .filter(rocket -> Boolean.TRUE.equals(rocket.active()))
+                .filter(rocket -> Boolean.TRUE.equals(rocket.getActive()))
                 .map(rocket -> new RocketDTO(
-                        rocket.id(),
-                        rocket.name(),
-                        rocket.country(),
-                        rocket.active(),
-                        rocket.success_rate_pct()
+                        rocket.getId(),
+                        rocket.getName(),
+                        rocket.getActive(),
+                        rocket.getSuccess_rate_pct()
                 ))
                 .toList();
     }

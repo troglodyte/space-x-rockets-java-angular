@@ -15,28 +15,11 @@ export class RocketsComponent implements OnInit {
   private readonly rocketsSig = signal<Record<string, unknown>[]>([]);
   readonly rockets = computed(() => this.rocketsSig());
   readonly columns = computed(() => this.deriveColumns(this.rocketsSig()));
+  private readonly http = inject(HttpClient);
   // Sorting state
   readonly sortColumn = signal<string | null>(null);
-  readonly sortDirection = signal<'asc' | 'desc'>('asc');
-
-  // Sorted view of rockets based on current sort state
-  readonly sortedRockets = computed(() => {
-    const data = this.rocketsSig();
-    const col = this.sortColumn();
-    const dir = this.sortDirection();
-    if (!col) return data;
-
-    // Create a copy to avoid mutating original signal data
-    const mapped = data.map((item, index) => ({ item, index }));
-
-    const factor = dir === 'asc' ? 1 : -1;
-    mapped.sort((a, b) => factor * this.compareValues((a.item as Record<string, unknown>)[col], (b.item as Record<string, unknown>)[col])
-      // Ensure stable sort by falling back to original index
-      || (a.index - b.index));
-
-    return mapped.map(m => m.item);
-  });
-  private readonly http = inject(HttpClient);
+  readonly sortDir = signal<'asc' | 'desc'>('asc');
+  readonly sortedRockets = computed(() => this.sortRows(this.rocketsSig(), this.sortColumn(), this.sortDir()));
 
 
   ngOnInit(): void {
@@ -87,55 +70,74 @@ export class RocketsComponent implements OnInit {
     return val === null || ['string', 'number', 'boolean'].includes(typeof val as string);
   }
 
-  // Toggle sort state for a given column
-  setSort(col: string): void {
+  onHeaderClick(col: string): void {
     const current = this.sortColumn();
     if (current === col) {
-      this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
+      this.sortDir.update(d => (d === 'asc' ? 'desc' : 'asc'));
     } else {
       this.sortColumn.set(col);
-      this.sortDirection.set('asc');
+      this.sortDir.set('asc');
     }
   }
 
-  // Compare heterogeneous values in a predictable way
+  ariaSort(col: string): 'none' | 'ascending' | 'descending' {
+    if (this.sortColumn() !== col) return 'none';
+    return this.sortDir() === 'asc' ? 'ascending' : 'descending';
+  }
+
+  sortIndicator(col: string): string {
+    if (this.sortColumn() !== col) return '';
+    return this.sortDir() === 'asc' ? ' ▲' : ' ▼';
+  }
+
+  private sortRows(rows: Record<string, unknown>[], col: string | null, dir: 'asc' | 'desc') {
+    if (!col) return rows;
+    const factor = dir === 'asc' ? 1 : -1;
+    // stable sort by pairing with original index
+    const paired = rows.map((r, i) => ({ r, i }));
+    paired.sort((a, b) => {
+      const va = a.r[col];
+      const vb = b.r[col];
+      const cmp = this.compareValues(va, vb);
+      if (cmp !== 0) return cmp * factor;
+      return a.i - b.i; // stability
+    });
+    return paired.map(p => p.r);
+  }
+
   private compareValues(a: unknown, b: unknown): number {
-    // Normalize undefined to null for ordering purposes
-    const va = a === undefined ? null : a as unknown;
-    const vb = b === undefined ? null : b as unknown;
-
-    // Nulls last
-    if (va === null && vb === null) return 0;
-    if (va === null) return 1;
-    if (vb === null) return -1;
-
-    const ta = typeof va;
-    const tb = typeof vb;
-
-    // If types differ, order by type name to keep ordering deterministic
-    if (ta !== tb) return ta < tb ? -1 : 1;
+    // Handle undefined/null
+    const aU = a === undefined || a === null;
+    const bU = b === undefined || b === null;
+    if (aU && bU) return 0;
+    if (aU) return -1;
+    if (bU) return 1;
 
     // Numbers
-    if (ta === 'number') {
-      const na = va as number;
-      const nb = vb as number;
-      if (Number.isNaN(na) && Number.isNaN(nb)) return 0;
-      if (Number.isNaN(na)) return 1;
-      if (Number.isNaN(nb)) return -1;
-      return na - nb;
-    }
+    if (typeof a === 'number' && typeof b === 'number') return a - b;
 
     // Booleans: false < true
-    if (ta === 'boolean') {
-      return (va === vb) ? 0 : (va === false ? -1 : 1);
-    }
+    if (typeof a === 'boolean' && typeof b === 'boolean') return (a === b) ? 0 : (a ? 1 : -1);
 
-    // Strings: case-insensitive, locale-aware
-    if (ta === 'string') {
-      return (va as string).localeCompare(vb as string, undefined, { sensitivity: 'base' });
-    }
+    // Numeric strings
+    const an = this.parseMaybeNumber(a);
+    const bn = this.parseMaybeNumber(b);
+    if (an.parsed && bn.parsed) return an.value - bn.value;
 
-    // Fallback to stringified comparison
-    return String(va).localeCompare(String(vb));
+    // Fallback to string compare
+    const sa = String(a);
+    const sb = String(b);
+    return sa.localeCompare(sb, undefined, { numeric: true, sensitivity: 'base' });
+  }
+
+  private parseMaybeNumber(v: unknown): { parsed: boolean; value: number } {
+    if (typeof v === 'number') return { parsed: true, value: v };
+    if (typeof v === 'string') {
+      const trimmed = v.trim();
+      if (trimmed === '') return { parsed: false, value: NaN };
+      const num = Number(trimmed.replace(/[,\s]/g, ''));
+      if (!Number.isNaN(num)) return { parsed: true, value: num };
+    }
+    return { parsed: false, value: NaN };
   }
 }
