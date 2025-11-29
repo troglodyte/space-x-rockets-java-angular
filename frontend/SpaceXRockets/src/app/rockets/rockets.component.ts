@@ -15,6 +15,27 @@ export class RocketsComponent implements OnInit {
   private readonly rocketsSig = signal<Record<string, unknown>[]>([]);
   readonly rockets = computed(() => this.rocketsSig());
   readonly columns = computed(() => this.deriveColumns(this.rocketsSig()));
+  // Sorting state
+  readonly sortColumn = signal<string | null>(null);
+  readonly sortDirection = signal<'asc' | 'desc'>('asc');
+
+  // Sorted view of rockets based on current sort state
+  readonly sortedRockets = computed(() => {
+    const data = this.rocketsSig();
+    const col = this.sortColumn();
+    const dir = this.sortDirection();
+    if (!col) return data;
+
+    // Create a copy to avoid mutating original signal data
+    const mapped = data.map((item, index) => ({ item, index }));
+
+    const factor = dir === 'asc' ? 1 : -1;
+    mapped.sort((a, b) => factor * this.compareValues((a.item as Record<string, unknown>)[col], (b.item as Record<string, unknown>)[col])
+      // Ensure stable sort by falling back to original index
+      || (a.index - b.index));
+
+    return mapped.map(m => m.item);
+  });
   private readonly http = inject(HttpClient);
 
 
@@ -64,5 +85,57 @@ export class RocketsComponent implements OnInit {
 
   private isSimple(val: unknown): boolean {
     return val === null || ['string', 'number', 'boolean'].includes(typeof val as string);
+  }
+
+  // Toggle sort state for a given column
+  setSort(col: string): void {
+    const current = this.sortColumn();
+    if (current === col) {
+      this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.sortColumn.set(col);
+      this.sortDirection.set('asc');
+    }
+  }
+
+  // Compare heterogeneous values in a predictable way
+  private compareValues(a: unknown, b: unknown): number {
+    // Normalize undefined to null for ordering purposes
+    const va = a === undefined ? null : a as unknown;
+    const vb = b === undefined ? null : b as unknown;
+
+    // Nulls last
+    if (va === null && vb === null) return 0;
+    if (va === null) return 1;
+    if (vb === null) return -1;
+
+    const ta = typeof va;
+    const tb = typeof vb;
+
+    // If types differ, order by type name to keep ordering deterministic
+    if (ta !== tb) return ta < tb ? -1 : 1;
+
+    // Numbers
+    if (ta === 'number') {
+      const na = va as number;
+      const nb = vb as number;
+      if (Number.isNaN(na) && Number.isNaN(nb)) return 0;
+      if (Number.isNaN(na)) return 1;
+      if (Number.isNaN(nb)) return -1;
+      return na - nb;
+    }
+
+    // Booleans: false < true
+    if (ta === 'boolean') {
+      return (va === vb) ? 0 : (va === false ? -1 : 1);
+    }
+
+    // Strings: case-insensitive, locale-aware
+    if (ta === 'string') {
+      return (va as string).localeCompare(vb as string, undefined, { sensitivity: 'base' });
+    }
+
+    // Fallback to stringified comparison
+    return String(va).localeCompare(String(vb));
   }
 }

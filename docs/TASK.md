@@ -23,7 +23,8 @@ Develop a Java Webapp to display information about past and future SpaceX launch
 
 #### Using the /launches API endpoint:
 
-* For each Rocket, display a list of launches associated with that rocket ● List of launches is specific to a particular rocket
+* For each Rocket, display a list of launches associated with that rocket
+* List of launches is specific to a particular rocket
 * SpaceX API is consumed in the Java Webapp
 
 #### Criterion
