@@ -14,7 +14,8 @@ export class RocketsComponent implements OnInit {
   error = signal<string | null>(null);
   private readonly rocketsSig = signal<Record<string, unknown>[]>([]);
   readonly rockets = computed(() => this.rocketsSig());
-  readonly columns = computed(() => this.deriveColumns(this.rocketsSig()));
+  // Fixed columns based on known API response
+  readonly columns = signal<string[]>(['id', 'name', 'active', 'successRatePct']);
   private readonly http = inject(HttpClient);
   // Sorting state
   readonly sortColumn = signal<string | null>(null);
@@ -47,28 +48,7 @@ export class RocketsComponent implements OnInit {
     });
   }
 
-  private deriveColumns(rows: Record<string, unknown>[]): string[] {
-    if (!rows || rows.length === 0) return [];
-    const keys = new Set<string>();
-    // Use keys from the first few rows to avoid overly wide tables
-    rows.slice(0, 3).forEach(r => Object.keys(r ?? {}).forEach(k => keys.add(k)));
-    // Prefer common readable fields first if they exist
-    const preferredOrder = [
-      'id', 'name', 'type', 'first_flight', 'firstFlight', 'country', 'company',
-      'active', 'cost_per_launch', 'costPerLaunch', 'success_rate_pct', 'successRatePct'
-    ];
-    const sample = rows.find(r => r && Object.keys(r).length > 0) ?? rows[0];
-    const simpleKeys = Array.from(keys).filter(k => this.isSimple((sample as Record<string, unknown>)[k]));
-    const ordered: string[] = [];
-    preferredOrder.forEach(p => { if (simpleKeys.includes(p)) ordered.push(p); });
-    simpleKeys.forEach(k => { if (!ordered.includes(k)) ordered.push(k); });
-    // Limit number of columns for readability
-    return ordered.slice(0, 12);
-  }
-
-  private isSimple(val: unknown): boolean {
-    return val === null || ['string', 'number', 'boolean'].includes(typeof val as string);
-  }
+  // deriveColumns and isSimple removed; columns are predefined
 
   onHeaderClick(col: string): void {
     const current = this.sortColumn();
