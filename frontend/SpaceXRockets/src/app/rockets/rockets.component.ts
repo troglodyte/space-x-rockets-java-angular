@@ -13,19 +13,34 @@ export class RocketsComponent implements OnInit {
   loading = signal(true);
   error = signal<string | null>(null);
   private readonly rocketsSig = signal<Record<string, unknown>[]>([]);
+  private readonly launchesSig = signal<Record<string, unknown>[]>([]);
   readonly rockets = computed(() => this.rocketsSig());
+  readonly launches = computed(() => this.launchesSig());
   // Fixed columns based on known API response
-  readonly columns = signal<string[]>(['id', 'name', 'active', 'successRatePct']);
+  readonly columns = signal<string[]>(['id', 'name', 'active', 'successRatePct', 'showLaunch']);
+  // Launch table fixed columns
+  readonly launchColumns = signal<string[]>(['details', 'id', 'name', 'date']);
   private readonly http = inject(HttpClient);
   // Sorting state
   readonly sortColumn = signal<string | null>(null);
   readonly sortDir = signal<'asc' | 'desc'>('asc');
   readonly sortedRockets = computed(() => this.sortRows(this.rocketsSig(), this.sortColumn(), this.sortDir()));
+  // Launch sorting state
+  readonly launchSortColumn = signal<string | null>(null);
+  readonly launchSortDir = signal<'asc' | 'desc'>('asc');
+  // Normalize launches so that `date` maps from API's `date_utc`
+  readonly processedLaunches = computed(() =>
+    this.launchesSig().map(l => ({
+      ...l,
+      date: (l as any)['date'] ?? (l as any)['date_utc']
+    }))
+  );
+  readonly sortedLaunches = computed(() => this.sortRows(this.processedLaunches(), this.launchSortColumn(), this.launchSortDir()));
 
 
   ngOnInit(): void {
     // Use relative URL so Angular dev proxy can forward to backend and avoid CORS during dev
-    const url = '/api/rockets/active';
+    const url = '/api/rockets/all';
     this.http.get<Record<string, unknown>[]>(url).subscribe({
       next: (data) => {
         this.rocketsSig.set(Array.isArray(data) ? data : []);
@@ -48,6 +63,30 @@ export class RocketsComponent implements OnInit {
     });
   }
 
+  showLaunchData(id: any): void {
+    const url = `/api/launches/id/${id}`;
+    this.http.get<Record<string, unknown>[]>(url).subscribe({
+      next: (data) => {
+        this.launchesSig.set(Array.isArray(data) ? data : []);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        // Provide clearer error information + log full error for debugging
+        const status = (err?.status as number | undefined) ?? 0;
+        const statusText = (err?.statusText as string | undefined) ?? 'Unknown Error';
+        // const url = (err?.url as string | undefined) ?? '/api/rockets/all';
+        const detail = typeof err?.error === 'string'
+          ? err.error
+          : (err?.message as string | undefined) ?? '';
+        // Log the full error for deeper diagnostics in the console
+        // eslint-disable-next-line no-console
+        console.error('[RocketsComponent] HTTP error when fetching launces', err);
+        this.error.set(`Failed to load launces from ${url} (${status} ${statusText})${detail ? ': ' + detail : ''}`);
+        this.loading.set(false);
+      }
+    });
+    // console.log(`Launch data for rocket ${id} requested`);
+  }
   // deriveColumns and isSimple removed; columns are predefined
 
   onHeaderClick(col: string): void {
@@ -60,14 +99,47 @@ export class RocketsComponent implements OnInit {
     }
   }
 
+  onLaunchHeaderClick(col: string): void {
+    const current = this.launchSortColumn();
+    if (current === col) {
+      this.launchSortDir.update(d => (d === 'asc' ? 'desc' : 'asc'));
+    } else {
+      this.launchSortColumn.set(col);
+      this.launchSortDir.set('asc');
+    }
+  }
+
   ariaSort(col: string): 'none' | 'ascending' | 'descending' {
     if (this.sortColumn() !== col) return 'none';
     return this.sortDir() === 'asc' ? 'ascending' : 'descending';
   }
 
+  ariaSortLaunch(col: string): 'none' | 'ascending' | 'descending' {
+    if (this.launchSortColumn() !== col) return 'none';
+    return this.launchSortDir() === 'asc' ? 'ascending' : 'descending';
+  }
+
+  /**
+   * Mapping the column names to their display names.
+   * 'id', 'name', 'active', 'successRatePct', 'showLaunch'
+   */
+  headerMap(col: string): string {
+    return {
+      'id': 'Rocket ID',
+      'name': 'Rocket Name',
+      'active': 'Active',
+      'successRatePct': 'Success Rate (%)',
+      'showLaunch': 'Show Launch Details'
+    }[col] ?? col;
+  }
   sortIndicator(col: string): string {
     if (this.sortColumn() !== col) return '';
     return this.sortDir() === 'asc' ? ' ▲' : ' ▼';
+  }
+
+  sortIndicatorLaunch(col: string): string {
+    if (this.launchSortColumn() !== col) return '';
+    return this.launchSortDir() === 'asc' ? ' ▲' : ' ▼';
   }
 
   private sortRows(rows: Record<string, unknown>[], col: string | null, dir: 'asc' | 'desc') {

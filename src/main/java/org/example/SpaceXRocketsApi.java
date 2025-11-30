@@ -62,10 +62,10 @@ public class SpaceXRocketsApi {
     }
 
     public String getRocketsData() {
-        return getSpaceXData("rockets");
+        return getSpaceXData("v4/rockets");
     }
 
-    public String getLaunchesData() {
-        return getSpaceXData("launches");
+    public String getAllLaunchesData() {
+        return getSpaceXData("v4/launches");
     }
 }

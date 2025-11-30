@@ -14,7 +14,7 @@
             @for (col of columns(); track col) {
               <th scope="col" [attr.aria-sort]="ariaSort(col)">
                 <button type="button" (click)="onHeaderClick(col)" class="th-btn" [attr.aria-label]="'Sort by ' + col">
-                  {{ col }}{{ sortIndicator(col) }}
+                    {{ headerMap(col) }}{{ sortIndicator(col) }}
                 </button>
               </th>
             }
@@ -24,13 +24,48 @@
           @for (r of sortedRockets(); track r['id'] ?? $index) {
             <tr>
               @for (col of columns(); track col) {
-                <td>{{ r[col] }}</td>
-              }
+                <td>
+                @if (col === 'showLaunch') {
+                  <button type="button" (click)="showLaunchData(r['id'])" class="th-btn">Show Launch Data</button>
+                } @else {
+                  {{ r[col] }}
+                }
+                </td>
+            }
             </tr>
           }
+
+          <!--- here --->
           </tbody>
         </table>
       </div>
+
+      @if (sortedLaunches().length > 0) {
+        <div class="table-wrapper" role="region" aria-label="Launches table">
+          <table class="table">
+            <thead>
+            <tr>
+              @for (col of launchColumns(); track col) {
+                <th scope="col" [attr.aria-sort]="ariaSortLaunch(col)">
+                  <button type="button" (click)="onLaunchHeaderClick(col)" class="th-btn" [attr.aria-label]="'Sort by ' + col">
+                    {{ col | titlecase }}{{ sortIndicatorLaunch(col) }}
+                  </button>
+                </th>
+              }
+            </tr>
+            </thead>
+            <tbody>
+            @for (r of sortedLaunches(); track r['id'] ?? $index) {
+              <tr>
+                @for (col of launchColumns(); track col) {
+                  <td>{{ r[col] }}</td>
+                }
+              </tr>
+            }
+            </tbody>
+          </table>
+        </div>
+      }
     }
   }
 </section>

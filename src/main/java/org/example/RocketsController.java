@@ -70,7 +70,7 @@ public class RocketsController {
     @ResponseBody
     public List<RocketDTO> all() throws Exception {
         List<Rocket> rockets = getParsedResponse();
-        return getActiveRocketsDTO(rockets);
+        return getRocketsDTO(rockets);
     }
 
     private List<Rocket> parseRockets(String response) throws JsonProcessingException {
@@ -119,6 +119,21 @@ public class RocketsController {
     private static List<RocketDTO> getActiveRocketsDTO(List<Rocket> rockets) {
         return rockets.stream()
                 .filter(rocket -> Boolean.TRUE.equals(rocket.getActive()))
+                .map(rocket -> new RocketDTO(
+                        rocket.getId(),
+                        rocket.getName(),
+                        rocket.getActive(),
+                        rocket.getSuccess_rate_pct()
+                ))
+                .toList();
+    }
+    /**
+     * Intent: Filter out response data to only include the data we want to see.
+     * @param rockets List of rockets from SpaceX API
+     * @return rockets Filtered list of rockets with only the data we want to see
+     */
+    private static List<RocketDTO> getRocketsDTO(List<Rocket> rockets) {
+        return rockets.stream()
                 .map(rocket -> new RocketDTO(
                         rocket.getId(),
                         rocket.getName(),
