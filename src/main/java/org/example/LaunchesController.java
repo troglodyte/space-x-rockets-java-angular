@@ -163,7 +163,7 @@ public class LaunchesController {
         String data = this.spaceXRocketsApi.getAllLaunchesData();
         List<Launch> launches = objectMapper.readValue(data, new TypeReference<List<Launch>>() {
         });
-        return launches.stream()
+        List<LaunchDTO> filteredLaunches = launches.stream()
                 // Use null-safe comparison in case some entries miss the rocket field
                 .filter(launch -> rocketId.equals(launch.getRocket()))
                 .map(launch -> new LaunchDTO(
@@ -173,5 +173,8 @@ public class LaunchesController {
                         launch.getDate()
                 ))
                 .toList();
+        return filteredLaunches.isEmpty()
+                ? List.of(new LaunchDTO("", "No Launches", "", ""))
+                : filteredLaunches;
     }
 }

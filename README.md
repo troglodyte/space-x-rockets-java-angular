@@ -1,7 +1,7 @@
 ## SpaceX Rockets information page  
 #### Using Spring and Angular
 
-### Backend (Spring Boot, Maven)
+### Backend (Spring, Maven)
 
 Prerequisites:
 - Java JDK installed (ensure your JDK matches the version configured in pom.xml)
@@ -9,14 +9,15 @@ Prerequisites:
 
 Common commands:
 - Clean and build the project and run the backend in dev mode:
-- `mvn clean package && mvn spring-boot:run``
+- `  mvn clean package && mvn spring-boot:run`
 
 Default server address:
 - The backend starts on http://localhost:8080 by default.
 
 Verify it’s running:
-- Open in browser or curl: `http://localhost:8080/api/rockets/all`
+- Open in browser
   - Example: `curl http://localhost:8080/api/rockets/all`
+  - Or if using Jetbrains, use the docs/*http file
 
 ### Run with Docker Compose
 
@@ -28,11 +29,6 @@ Build and start the backend:
 
 Then open:
 - http://localhost:8080/api/rockets/all
-
-Environment variables (optional):
-- You can override JVM or Spring settings, e.g.:
-  - `JAVA_OPTS="-Xms256m -Xmx512m" docker compose up --build`
-  - `SPRING_PROFILES_ACTIVE=prod docker compose up --build`
 
 Stop containers:
 - `docker compose down`

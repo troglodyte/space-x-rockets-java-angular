@@ -1,14 +1,18 @@
 import { ChangeDetectionStrategy, Component, OnInit, computed, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-rockets',
-  imports: [CommonModule, HttpClientModule],
+  imports: [CommonModule],
   templateUrl: './rockets.component.html',
   styleUrl: './rockets.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
+/**
+ * Component responsible for displaying and managing SpaceX rocket and launch data.
+ * Handles data fetching, sorting, and display of rocket information and their associated launches.
+ */
 export class RocketsComponent implements OnInit {
   loading = signal(true);
   error = signal<string | null>(null);
@@ -16,19 +20,19 @@ export class RocketsComponent implements OnInit {
   private readonly launchesSig = signal<Record<string, unknown>[]>([]);
   readonly rockets = computed(() => this.rocketsSig());
   readonly launches = computed(() => this.launchesSig());
-  // Fixed columns based on known API response
   readonly columns = signal<string[]>(['name', 'id', 'active', 'successRatePct', 'showLaunch']);
-  // Launch table fixed columns
   readonly launchColumns = signal<string[]>(['rocket', 'name', 'id', 'date']);
   private readonly http = inject(HttpClient);
-  // Sorting state
   readonly sortColumn = signal<string | null>(null);
   readonly sortDir = signal<'asc' | 'desc'>('asc');
+
+  /**
+   * Computed property that returns rockets sorted by the current sort column and direction.
+   * Updates automatically when sort parameters or rocket data changes.
+   */
   readonly sortedRockets = computed(() => this.sortRows(this.rocketsSig(), this.sortColumn(), this.sortDir()));
-  // Launch sorting state
   readonly launchSortColumn = signal<string | null>(null);
   readonly launchSortDir = signal<'asc' | 'desc'>('asc');
-  // Normalize launches so that `date` maps from API's `date_utc`
   readonly processedLaunches = computed(() =>
     this.launchesSig().map(l => ({
       ...l,
@@ -40,7 +44,6 @@ export class RocketsComponent implements OnInit {
 
 
   ngOnInit(): void {
-    // Use relative URL so Angular dev proxy can forward to backend and avoid CORS during dev
     const url = '/api/rockets/all';
     this.http.get<Record<string, unknown>[]>(url).subscribe({
       next: (data) => {
@@ -48,21 +51,23 @@ export class RocketsComponent implements OnInit {
         this.loading.set(false);
       },
       error: (err) => {
-        // Provide clearer error information + log full error for debugging
         const status = (err?.status as number | undefined) ?? 0;
         const statusText = (err?.statusText as string | undefined) ?? 'Unknown Error';
-        // const url = (err?.url as string | undefined) ?? '/api/rockets/all';
         const detail = typeof err?.error === 'string'
           ? err.error
           : (err?.message as string | undefined) ?? '';
-        // Log the full error for deeper diagnostics in the console
-        // eslint-disable-next-line no-console
         console.error('[RocketsComponent] HTTP error when fetching rockets', err);
         this.error.set(`Failed to load rockets from ${url} (${status} ${statusText})${detail ? ': ' + detail : ''}`);
         this.loading.set(false);
       }
     });
   }
+
+  /**
+   * Fetches and displays launch data for a specific rocket.
+   * @param id - The ID of the rocket to fetch launches for
+   * @param rocket_name - The name of the rocket to associate with launches
+   */
   showLaunchData(id: any, rocket_name: any): void {
     const url = `/api/launches/id/${id}`;
     console.log(rocket_name);
@@ -88,6 +93,10 @@ export class RocketsComponent implements OnInit {
     });
   }
 
+  /**
+   * Handles click events on rocket table headers for sorting.
+   * @param col - The column name to sort by
+   */
   onHeaderClick(col: string): void {
     const current = this.sortColumn();
     if (current === col) {
@@ -98,6 +107,10 @@ export class RocketsComponent implements OnInit {
     }
   }
 
+  /**
+   * Handles click events on launch table headers for sorting.
+   * @param col - The column name to sort by
+   */
   onLaunchHeaderClick(col: string): void {
     const current = this.launchSortColumn();
     if (current === col) {
@@ -108,6 +121,11 @@ export class RocketsComponent implements OnInit {
     }
   }
 
+  /**
+   * Determines the ARIA sort attribute value for rocket table columns.
+   * @param col - The column to get the sort state for
+   * @returns The ARIA sort state: 'none', 'ascending', or 'descending'
+   */
   ariaSort(col: string): 'none' | 'ascending' | 'descending' {
     if (this.sortColumn() !== col) return 'none';
     return this.sortDir() === 'asc' ? 'ascending' : 'descending';
@@ -119,7 +137,7 @@ export class RocketsComponent implements OnInit {
   }
 
   /**
-   * Mapping the rocekt table column names to their display names.
+   * Mapping the rocket table column names to their display names.
    * 'id', 'name', 'active', 'successRatePct', 'showLaunch'
    */
   rocketHeaderMap(col: string): string {
@@ -129,19 +147,6 @@ export class RocketsComponent implements OnInit {
       'active': 'Active',
       'successRatePct': 'Success Rate (%)',
       'showLaunch': 'Show Launch Details'
-    }[col] ?? col;
-  }
-
-  /**
-   * Mapping the launch table column names to their display names.
-   * 'name', 'id', 'details', 'date'
-   */
-  launchHeaderMap(col: string): string {
-    return {
-      'name': 'Launch Name',
-      'id': 'Launch Id',
-      'rocket': 'Rocket Id',
-      'date': 'Launch Date'
     }[col] ?? col;
   }
 
@@ -155,10 +160,17 @@ export class RocketsComponent implements OnInit {
     return this.launchSortDir() === 'asc' ? ' ▲' : ' ▼';
   }
 
+  /**
+   * Sorts an array of records based on the specified column and direction.
+   * Maintains sort stability by using the original index as a secondary sort key.
+   * @param rows - The array of records to sort
+   * @param col - The column to sort by
+   * @param dir - The sort direction ('asc' or 'desc')
+   * @returns The sorted array of records
+   */
   private sortRows(rows: Record<string, unknown>[], col: string | null, dir: 'asc' | 'desc') {
     if (!col) return rows;
     const factor = dir === 'asc' ? 1 : -1;
-    // stable sort by pairing with original index
     const paired = rows.map((r, i) => ({ r, i }));
     paired.sort((a, b) => {
       const va = a.r[col];
@@ -170,6 +182,13 @@ export class RocketsComponent implements OnInit {
     return paired.map(p => p.r);
   }
 
+  /**
+   * Compares two values for sorting, handling different data types appropriately.
+   * Supports undefined/null, numbers, booleans, and strings with numeric content.
+   * @param a - First value to compare
+   * @param b - Second value to compare
+   * @returns Negative if a < b, positive if a > b, zero if equal
+   */
   private compareValues(a: unknown, b: unknown): number {
     // Handle undefined/null
     const aU = a === undefined || a === null;
