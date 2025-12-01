@@ -14,7 +14,7 @@
             @for (col of columns(); track col) {
               <th scope="col" [attr.aria-sort]="ariaSort(col)">
                 <button type="button" (click)="onHeaderClick(col)" class="th-btn" [attr.aria-label]="'Sort by ' + col">
-                    {{ headerMap(col) }}{{ sortIndicator(col) }}
+                    {{ rocketHeaderMap(col) }}{{ sortIndicator(col) }}
                 </button>
               </th>
             }
@@ -26,7 +26,7 @@
               @for (col of columns(); track col) {
                 <td>
                 @if (col === 'showLaunch') {
-                  <button type="button" (click)="showLaunchData(r['id'])" class="th-btn">Show Launch Data</button>
+                  <button type="button" (click)="showLaunchData(r['id'], r['name'])" class="th-btn">Show Launch Data</button>
                 } @else {
                   {{ r[col] }}
                 }

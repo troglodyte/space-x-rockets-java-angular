@@ -17,9 +17,9 @@ export class RocketsComponent implements OnInit {
   readonly rockets = computed(() => this.rocketsSig());
   readonly launches = computed(() => this.launchesSig());
   // Fixed columns based on known API response
-  readonly columns = signal<string[]>(['id', 'name', 'active', 'successRatePct', 'showLaunch']);
+  readonly columns = signal<string[]>(['name', 'id', 'active', 'successRatePct', 'showLaunch']);
   // Launch table fixed columns
-  readonly launchColumns = signal<string[]>(['details', 'id', 'name', 'date']);
+  readonly launchColumns = signal<string[]>(['rocket', 'name', 'id', 'date']);
   private readonly http = inject(HttpClient);
   // Sorting state
   readonly sortColumn = signal<string | null>(null);
@@ -32,7 +32,8 @@ export class RocketsComponent implements OnInit {
   readonly processedLaunches = computed(() =>
     this.launchesSig().map(l => ({
       ...l,
-      date: (l as any)['date'] ?? (l as any)['date_utc']
+      date: (l as any)['date'] ?? (l as any)['date_utc'],
+      rocket: l['rocket_name'] ?? '',
     }))
   );
   readonly sortedLaunches = computed(() => this.sortRows(this.processedLaunches(), this.launchSortColumn(), this.launchSortDir()));
@@ -62,32 +63,30 @@ export class RocketsComponent implements OnInit {
       }
     });
   }
-
-  showLaunchData(id: any): void {
+  showLaunchData(id: any, rocket_name: any): void {
     const url = `/api/launches/id/${id}`;
+    console.log(rocket_name);
     this.http.get<Record<string, unknown>[]>(url).subscribe({
+
       next: (data) => {
-        this.launchesSig.set(Array.isArray(data) ? data : []);
+        const launchesWithRocketName = Array.isArray(data)
+          ? data.map(launch => ({...launch, rocket_name}))
+          : [];
+        this.launchesSig.set(launchesWithRocketName);
         this.loading.set(false);
       },
       error: (err) => {
-        // Provide clearer error information + log full error for debugging
         const status = (err?.status as number | undefined) ?? 0;
         const statusText = (err?.statusText as string | undefined) ?? 'Unknown Error';
-        // const url = (err?.url as string | undefined) ?? '/api/rockets/all';
         const detail = typeof err?.error === 'string'
           ? err.error
           : (err?.message as string | undefined) ?? '';
-        // Log the full error for deeper diagnostics in the console
-        // eslint-disable-next-line no-console
-        console.error('[RocketsComponent] HTTP error when fetching launces', err);
+        console.error('[RocketsComponent] HTTP error when fetching launches', err);
         this.error.set(`Failed to load launces from ${url} (${status} ${statusText})${detail ? ': ' + detail : ''}`);
         this.loading.set(false);
       }
     });
-    // console.log(`Launch data for rocket ${id} requested`);
   }
-  // deriveColumns and isSimple removed; columns are predefined
 
   onHeaderClick(col: string): void {
     const current = this.sortColumn();
@@ -120,10 +119,10 @@ export class RocketsComponent implements OnInit {
   }
 
   /**
-   * Mapping the column names to their display names.
+   * Mapping the rocekt table column names to their display names.
    * 'id', 'name', 'active', 'successRatePct', 'showLaunch'
    */
-  headerMap(col: string): string {
+  rocketHeaderMap(col: string): string {
     return {
       'id': 'Rocket ID',
       'name': 'Rocket Name',
@@ -132,6 +131,20 @@ export class RocketsComponent implements OnInit {
       'showLaunch': 'Show Launch Details'
     }[col] ?? col;
   }
+
+  /**
+   * Mapping the launch table column names to their display names.
+   * 'name', 'id', 'details', 'date'
+   */
+  launchHeaderMap(col: string): string {
+    return {
+      'name': 'Launch Name',
+      'id': 'Launch Id',
+      'rocket': 'Rocket Id',
+      'date': 'Launch Date'
+    }[col] ?? col;
+  }
+
   sortIndicator(col: string): string {
     if (this.sortColumn() !== col) return '';
     return this.sortDir() === 'asc' ? ' ▲' : ' ▼';

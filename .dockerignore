@@ -1,0 +1,10 @@
+# Docker build context pruning
+target/
+.git/
+.idea/
+.vscode/
+node_modules/
+frontend/**/node_modules/
+.DS_Store
+*.log
+**/.env

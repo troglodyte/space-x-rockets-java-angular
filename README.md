@@ -8,12 +8,8 @@ Prerequisites:
 - Maven 3.9+
 
 Common commands:
-- Clean and build the project:
-  - `mvn clean package`
-- Run the backend in dev mode:
-  - `mvn spring-boot:run`
-- Run without tests (faster build):
-  - `mvn clean package -DskipTests`
+- Clean and build the project and run the backend in dev mode:
+- `mvn clean package && mvn spring-boot:run``
 
 Default server address:
 - The backend starts on http://localhost:8080 by default.
@@ -22,15 +18,21 @@ Verify it’s running:
 - Open in browser or curl: `http://localhost:8080/api/rockets/all`
   - Example: `curl http://localhost:8080/api/rockets/all`
 
-Run the packaged jar (alternative):
-1) Build it: `mvn clean package`
-2) Run: `java -jar target/SpaceXRockets-0.0.1-SNAPSHOT.jar`
+### Run with Docker Compose
 
-Environment configuration:
-- If you use a .env file, it will be loaded via spring-dotenv.
-- To change the server port, set `SERVER_PORT` in your environment or add `--server.port=XXXX` to the run command, e.g.:
-  - `mvn spring-boot:run -Dspring-boot.run.arguments=--server.port=8081`
+Prerequisites:
+- Docker and Docker Compose installed
 
-Endpoints (examples):
-- Rockets: `GET /api/rockets/all`
-- Launches: `GET /api/launches/all`
+Build and start the backend:
+- `docker compose up --build`
+
+Then open:
+- http://localhost:8080/api/rockets/all
+
+Environment variables (optional):
+- You can override JVM or Spring settings, e.g.:
+  - `JAVA_OPTS="-Xms256m -Xmx512m" docker compose up --build`
+  - `SPRING_PROFILES_ACTIVE=prod docker compose up --build`
+
+Stop containers:
+- `docker compose down`
