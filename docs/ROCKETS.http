@@ -1,8 +1,26 @@
 ### Backend APIs
+### Just some helpful, test calls using JetBrains .http magic
+
 
 # Individual launch api
 # https://api.spacexdata.com/v5/launches/:id
-https://api.spacexdata.com/v5/launches/62dd70d5202306255024d139
+# https://api.spacexdata.com/v5/launches/62dd70d5202306255024d139
+# Local
+GET http://localhost:4200/api/launches/id/5e9d0d95eda69974db09d1ed
+###
+GET http://localhost:4200/api/launches/id/5e9d0d95eda69974db09d1ed
+
+### External launches
+GET https://api.spacexdata.com/v5/launches/62dd70d5202306255024d139
+
+### Empty result
+GET https://api.spacexdata.com/v4/launches/5e9d0d95eda69955f709d1eb
+#GET https://api.spacexdata.com/v5/launches/5e9d0d95eda69974db09d1ed
+#http://localhost:4200/api/launches/id/5e9d0d95eda69974db09d1ed
+
+###
+GET http://localhost:4200/api/rockets/all:;harmful code
+
 
 ### all rockets
 GET localhost:8080/api/rockets/all

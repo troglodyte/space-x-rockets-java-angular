@@ -1,6 +1,3 @@
-### Misc commands 
-
-`mvn clean package`  
-`mvn spring-boot:run`  
-`mvn clean package -DskipTests`  
-`mvn clean install`
+# Misc commands 
+### To start backend server locally: 
+`mvn clean package && mvn spring-boot:run`

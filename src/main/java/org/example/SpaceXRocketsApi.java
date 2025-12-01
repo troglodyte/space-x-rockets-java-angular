@@ -8,6 +8,14 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.stereotype.Service;
 
 
+/**
+ * Service class for interacting with the SpaceX API endpoints.
+ * Provides methods to fetch rockets and launches data from SpaceX REST API.
+ *
+ * @author Michael Harris
+ * @version 1.0
+ * @since 1.0
+ */
 @Service
 public class SpaceXRocketsApi {
     private final RestTemplate restTemplate;
@@ -61,10 +69,22 @@ public class SpaceXRocketsApi {
         return getApiResponse(url);
     }
 
+    /**
+     * Retrieves data about all SpaceX rockets.
+     *
+     * @return JSON string containing information about all SpaceX rockets
+     * @since 1.0
+     */
     public String getRocketsData() {
         return getSpaceXData("v4/rockets");
     }
 
+    /**
+     * Retrieves data about all SpaceX launches.
+     *
+     * @return JSON string containing information about all SpaceX launches
+     * @since 1.0
+     */
     public String getAllLaunchesData() {
         return getSpaceXData("v4/launches");
     }
