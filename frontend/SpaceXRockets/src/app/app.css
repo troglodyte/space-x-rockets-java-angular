@@ -1,0 +1,400 @@
+/* --- Global layout & background --- */
+
+:root {
+  --bg-main: radial-gradient(circle at top, #101632 0%, #050815 55%, #02030a 100%);
+  --accent: #4af2a1;
+  --accent-soft: rgba(74, 242, 161, 0.25);
+  --accent-2: #40c9ff;
+  --danger: #ff4a6a;
+  --text-main: #e5ecff;
+  --text-muted: #7f8ab8;
+  --panel-bg: rgba(7, 12, 32, 0.96);
+  --panel-border: rgba(126, 196, 255, 0.35);
+  --panel-glow: 0 0 18px rgba(64, 201, 255, 0.25);
+  --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "Share Tech Mono", "Roboto Mono", ui-monospace, SFMono-Regular, Menlo, Monaco,
+  Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+/* If you can, also add this to index.html body tag:
+   <body class="starfield"> */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-main);
+  color: var(--text-main);
+  background:
+    radial-gradient(circle at 10% 20%, rgba(64, 201, 255, 0.25) 0, transparent 40%),
+    radial-gradient(circle at 90% 10%, rgba(255, 101, 132, 0.3) 0, transparent 45%),
+    radial-gradient(circle at 20% 100%, rgba(74, 242, 161, 0.25) 0, transparent 40%),
+    #050816;
+  background-attachment: fixed;
+}
+
+/* Simple container system */
+
+.container {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.mt-4 {
+  margin-top: 2rem;
+}
+
+/* --- Navbar --- */
+
+.navbar {
+  border-bottom: 1px solid rgba(126, 196, 255, 0.25);
+  background: linear-gradient(to bottom, rgba(4, 8, 24, 0.96), rgba(3, 5, 18, 0.96));
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  backdrop-filter: blur(16px);
+}
+
+.navbar-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 1.5rem;
+}
+
+.navbar-sub {
+  padding: 0.4rem 1.5rem 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border-top: 1px solid rgba(126, 196, 255, 0.14);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  text-decoration: none;
+  color: var(--text-main);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.9rem;
+  position: relative;
+}
+
+.brand-icon {
+  font-size: 1.4rem;
+  transform-origin: center;
+  transition: transform 0.25s ease;
+}
+
+.brand-text {
+  color: var(--accent);
+  position: relative;
+}
+
+.brand-text::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -0.15rem;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-2));
+  transform-origin: left;
+  transform: scaleX(0.35);
+  opacity: 0.7;
+}
+
+.brand:hover .brand-icon {
+  transform: translateY(-1px) rotate(-9deg);
+}
+
+.brand:hover .brand-text::after {
+  transform: scaleX(1);
+}
+
+/* Navbar status indicator */
+
+.navbar-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+}
+
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: radial-gradient(circle, var(--accent) 0, #0b3b27 80%);
+  box-shadow: 0 0 12px rgba(74, 242, 161, 0.9);
+  animation: pulse 1.8s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.35);
+    opacity: 0.5;
+  }
+}
+
+.link {
+  text-decoration: none;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--text-muted);
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  font-family: var(--font-mono);
+}
+
+.link:hover {
+  color: var(--accent);
+  border-color: rgba(64, 201, 255, 0.6);
+  background: radial-gradient(circle at top, rgba(64, 201, 255, 0.18), transparent);
+}
+
+/* --- Page & telemetry card --- */
+
+.page {
+  min-height: calc(100vh - 110px);
+  padding: 1.5rem 0 2.5rem;
+}
+
+.telemetry-panel {
+  border-radius: 1.2rem;
+  border: 1px solid var(--panel-border);
+  background:
+    linear-gradient(135deg, rgba(64, 201, 255, 0.08), transparent 55%),
+    var(--panel-bg);
+  box-shadow:
+    var(--panel-glow),
+    0 20px 45px rgba(0, 0, 0, 0.85);
+  padding: 1.75rem 1.75rem 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+/* little "scanline" / bezel detail */
+.telemetry-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.04),
+    rgba(255, 255, 255, 0.04) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  opacity: 0.15;
+  pointer-events: none;
+  mix-blend-mode: soft-light;
+}
+
+.telemetry-header {
+  position: relative;
+  z-index: 1;
+  margin-bottom: 1.4rem;
+}
+
+.telemetry-title {
+  margin: 0 0 0.35rem;
+  font-size: 1.3rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+}
+
+.telemetry-subtitle {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* --- Tables stack (two vertical tables) --- */
+
+.tables-stack {
+  position: relative;
+  z-index: 1;
+}
+
+/* Generic table styling for the two stacked tables rendered by Angular */
+
+.tables-stack table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1.75rem; /* keeps them vertical with some spacing */
+  background: radial-gradient(circle at top left, rgba(64, 201, 255, 0.16) 0, #050816 55%);
+  border-radius: 0.9rem;
+  overflow: hidden;
+  border: 1px solid rgba(86, 140, 255, 0.6);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.8);
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--text-main);
+}
+
+.tables-stack table:last-of-type {
+  margin-bottom: 0.25rem;
+}
+
+.tables-stack thead {
+  background: linear-gradient(90deg, rgba(64, 201, 255, 0.26), rgba(255, 101, 132, 0.24));
+}
+
+.tables-stack thead th {
+  padding: 0.7rem 0.85rem;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.7rem;
+  border-bottom: 1px solid rgba(141, 190, 255, 0.8);
+  white-space: nowrap;
+}
+
+.tables-stack tbody td {
+  padding: 0.6rem 0.85rem;
+  border-bottom: 1px solid rgba(47, 63, 120, 0.9);
+}
+
+.tables-stack tbody tr:nth-child(even) {
+  background-color: rgba(7, 12, 40, 0.9);
+}
+
+.tables-stack tbody tr:hover {
+  background: linear-gradient(90deg, rgba(64, 201, 255, 0.32), rgba(7, 12, 40, 0.98));
+  transform: translateY(-1px);
+  box-shadow: 0 0 0 1px rgba(64, 201, 255, 0.7);
+}
+
+/* small "status pill" style you can reuse in your cells if you want */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.badge--go {
+  border-color: rgba(74, 242, 161, 0.7);
+  color: var(--accent);
+}
+
+.badge--no-go {
+  border-color: rgba(255, 74, 106, 0.7);
+  color: var(--danger);
+}
+
+/* --- Footer --- */
+
+.footer {
+  border-top: 1px solid rgba(126, 196, 255, 0.25);
+  background: radial-gradient(circle at top, rgba(64, 201, 255, 0.16), rgba(5, 8, 20, 0.95));
+  padding: 0.9rem 0;
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+}
+
+.muted {
+  color: var(--text-muted);
+}
+
+.footer-badge {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid rgba(64, 201, 255, 0.75);
+  background: radial-gradient(circle at top, rgba(64, 201, 255, 0.18), transparent);
+}
+
+/* --- Responsive tweaks --- */
+
+@media (max-width: 768px) {
+  .navbar-main {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+  }
+
+  .telemetry-panel {
+    padding: 1.25rem 1.1rem 1rem;
+    border-radius: 0.9rem;
+  }
+
+  .telemetry-title {
+    font-size: 1.05rem;
+    letter-spacing: 0.12em;
+  }
+
+  .tables-stack table {
+    font-size: 0.75rem;
+  }
+
+  .tables-stack thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+}
+
+/* ---- FORCE LIGHT TEXT IN NAVBAR & FOOTER ---- */
+
+.navbar,
+.navbar * {
+  color: #e5ecff !important;
+}
+
+.navbar a,
+.navbar a:link,
+.navbar a:visited,
+.navbar a:hover,
+.navbar a:active {
+  color: #e5ecff !important;
+  text-decoration: none;
+}
+
+/* If you want the sub-links slightly muted, you can tweak: */
+.navbar-sub .link {
+  color: #a3b2ff !important;
+}
+.navbar-sub .link:hover {
+  color: #4af2a1 !important;
+}
+
+/* Footer text */
+.footer,
+.footer * {
+  color: #e5ecff !important;
+}
+
+/* Muted footer text (the © line) */
+.footer .muted {
+  color: #8a93c2 !important;
+}

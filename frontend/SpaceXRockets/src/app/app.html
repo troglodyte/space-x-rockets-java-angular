@@ -1,20 +1,42 @@
 <nav class="navbar">
-  <div class="container">
-    <a class="brand" routerLink="/rockets">SpaceX Rockets</a>
+  <div class="container navbar-main">
+    <a class="brand" routerLink="/rockets">
+      <span class="brand-icon">🚀</span>
+      <span class="brand-text">SpaceX Rockets</span>
+    </a>
+
+    <div class="navbar-status">
+      <span class="status-indicator"></span>
+      <span class="status-text">Launch Console Online</span>
+    </div>
   </div>
-  <div class="container small">
+
+  <div class="container navbar-sub">
     <a routerLink="/rockets" class="link">Rockets</a>
   </div>
-
 </nav>
 
-<main class="container mt-4">
-  <router-outlet></router-outlet>
+<main class="page">
+  <div class="container mt-4">
+    <section class="telemetry-panel">
+      <header class="telemetry-header">
+        <h1 class="telemetry-title">Mission Control: SpaceX Launch Telemetry</h1>
+        <p class="telemetry-subtitle">
+          Live mission data feed · Upcoming launches &amp; historical missions
+        </p>
+      </header>
 
+      <div class="tables-stack">
+        <!-- Your Angular rockets component will render two tables here -->
+        <router-outlet></router-outlet>
+      </div>
+    </section>
+  </div>
 </main>
 
 <footer class="footer">
-  <div class="container">
+  <div class="container footer-inner">
     <span class="muted">SpaceX Rockets Information © 2025</span>
+    <span class="footer-badge">Retro Flight Console v1.0</span>
   </div>
 </footer>
