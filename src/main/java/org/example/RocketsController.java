@@ -123,7 +123,7 @@ public class RocketsController {
      */
     @GetMapping(value = "/all", produces = "application/json")
     @ResponseBody
-    public List<RocketDTO> allSorted(@RequestParam(value="sort", required = false) String sortBy) throws Exception {
+    public List<RocketDTO> allSorted(@RequestParam(value = "sort", required = false) String sortBy) throws Exception {
         List<Rocket> rockets = getParsedResponse();
 
         try {
