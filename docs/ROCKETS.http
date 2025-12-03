@@ -19,7 +19,7 @@ GET https://api.spacexdata.com/v4/launches/5e9d0d95eda69955f709d1eb
 #http://localhost:4200/api/launches/id/5e9d0d95eda69974db09d1ed
 
 ###
-GET http://localhost:4200/api/rockets/all?sort=name
+GET http://localhost:8080/api/rockets/all?sort=active
 
 
 ### all rockets

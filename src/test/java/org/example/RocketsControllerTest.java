@@ -29,7 +29,7 @@ public class RocketsControllerTest {
                 "]";
         when(api.getRocketsData()).thenReturn(json);
 
-        List<?> result = controller.all();
+        List<?> result = controller.all(null);
         assertEquals(3, result.size(), "Should map all rockets to DTOs");
     }
 

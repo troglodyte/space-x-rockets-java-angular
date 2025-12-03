@@ -98,18 +98,18 @@ public class RocketsController {
     }
 
 
-    /**
-     * Retrieves all rockets from the SpaceX API.
-     *
-     * @return List of all rockets as DTOs
-     * @throws Exception if there's an error retrieving or processing the rocket data
-     */
-    @GetMapping(value = "/all", produces = "application/json")
-    @ResponseBody
-    public List<RocketDTO> all() throws Exception {
-        List<Rocket> rockets = getParsedResponse();
-        return getRocketsDTO(rockets);
-    }
+//    /**
+//     * Retrieves all rockets from the SpaceX API.
+//     *
+//     * @return List of all rockets as DTOs
+//     * @throws Exception if there's an error retrieving or processing the rocket data
+//     */
+//    @GetMapping(value = "/all", produces = "application/json")
+//    @ResponseBody
+//    public List<RocketDTO> all() throws Exception {
+//        List<Rocket> rockets = getParsedResponse();
+//        return getRocketsDTO(rockets);
+//    }
 
     /**
      * Retrieves all rockets sorted by the specified field.
@@ -117,13 +117,14 @@ public class RocketsController {
      *   if requested from the front end, however, this is not the approach I would take in production. 
      *   So I left it to the front end to reduce the number of calls to the back end. 
      *
+     * todo: to complete this, I would also implement a 'reverse' option for sorting.
      * @param sortBy the field to sort by (id, name, active, or success_rate_pct)
      * @return List of sorted rockets as DTOs
      * @throws Exception if there's an error retrieving or processing the rocket data
      */
     @GetMapping(value = "/all", produces = "application/json")
     @ResponseBody
-    public List<RocketDTO> allSorted(@RequestParam(value = "sort", required = false) String sortBy) throws Exception {
+    public List<RocketDTO> all(@RequestParam(value = "sort", required = false) String sortBy) throws Exception {
         List<Rocket> rockets = getParsedResponse();
 
         try {
