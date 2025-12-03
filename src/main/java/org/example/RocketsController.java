@@ -121,9 +121,9 @@ public class RocketsController {
      * @return List of sorted rockets as DTOs
      * @throws Exception if there's an error retrieving or processing the rocket data
      */
-    @GetMapping(value = "/all:{sortBy}", produces = "application/json")
+    @GetMapping(value = "/all", produces = "application/json")
     @ResponseBody
-    public List<RocketDTO> allSorted(@PathVariable String sortBy) throws Exception {
+    public List<RocketDTO> allSorted(@RequestParam(value="sort", required = false) String sortBy) throws Exception {
         List<Rocket> rockets = getParsedResponse();
 
         try {
